@@ -18,9 +18,7 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-        'name',
-        'email',
-        'password',
+        'name', 'email', 'password', 'photo', 'bio', 'interesses',
     ];
 
     /**
@@ -45,4 +43,45 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function contents()
+    {
+        return $this->hasMany(Content::class);
+    }
+
+    public function friendships()
+    {
+        return $this->hasMany(Friendship::class);
+    }
+
+    public function likes()
+    {
+        return $this->hasMany(Like::class);
+    }
+
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
+
+    public function messages()
+    {
+        return $this->hasMany(Message::class, 'senderID');
+    }
+
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class);
+    }
+
+    public function clubs()
+    {
+        return $this->belongsToMany(Club::class);
+    }
+
+    public function events()
+    {
+        return $this->belongsToMany(Event::class);
+    }
+
 }
