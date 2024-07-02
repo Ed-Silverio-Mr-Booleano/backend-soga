@@ -9,10 +9,26 @@ Route::middleware('auth:sanctum')->group(function () {
         return $request->user();
     });
     Route::post('logout', [App\Http\Controllers\API\Auth\AuthController::class, 'logout']);
+    Route::post('content', [App\Http\Controllers\API\v1\ContentController::class, 'store']);
 });
 
+//Auth routes
 Route::post('register', [App\Http\Controllers\API\Auth\AuthController::class, 'register']);
 Route::post('login', [App\Http\Controllers\API\Auth\AuthController::class, 'login']);
+
+//Content routes
+
+Route::prefix('v1')->group(function () {
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::post('content', [App\Http\Controllers\API\v1\ContentController::class, 'store']);
+        Route::get('contents/{id}', [App\Http\Controllers\API\v1\ContentController::class, 'show']);
+        Route::get('user-contents/{userId}', [App\Http\Controllers\API\v1\ContentController::class, 'showByUserId']);
+    });
+    
+});
+
+
+
 
 /** Menambahkan prefix v1 pada route api (http://localhost:8000/api/v1/route_yang_diakses) */
 Route::prefix('v1')->group(function () {
