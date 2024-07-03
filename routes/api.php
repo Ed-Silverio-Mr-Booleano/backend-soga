@@ -9,7 +9,7 @@ Route::middleware('auth:sanctum')->group(function () {
         return $request->user();
     });
     Route::post('logout', [App\Http\Controllers\API\Auth\AuthController::class, 'logout']);
-    Route::post('content', [App\Http\Controllers\API\v1\ContentController::class, 'store']);
+    //Route::post('content', [App\Http\Controllers\API\v1\ContentController::class, 'store']);
 });
 
 //Auth routes
@@ -34,11 +34,13 @@ Route::prefix('v1')->group(function () {
         //Route::get('', [App\Http\Controllers\API\v1\CommentController::class,'']);
         //Route::get('', [App\Http\Controllers\API\v1\CommentController::class,'']);
 
-        //Friendship routes
+        //Friendship routes (do friend request; undo friend request, bring my friends)
+        Route::post('friendship', [App\Http\Controllers\API\v1\FriendshipController::class, 'store']);
+        Route::delete('unfriendship', [App\Http\Controllers\API\v1\FriendshipController::class,'destroy']);
 
-        //User routes
+        //User routes(bring users; edit my avatar; edit my profile; edit my cover pic; edit my password)
 
-        //Message routes
+        //Message routes (bring my messages; bring messages by status (read, unread); bring messages (user_online/offline))
 
         //Likes routes
         Route::post('like', [App\Http\Controllers\API\v1\LikeController::class, 'store']);
