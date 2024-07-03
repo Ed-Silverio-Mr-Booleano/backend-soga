@@ -16,16 +16,36 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::post('register', [App\Http\Controllers\API\Auth\AuthController::class, 'register']);
 Route::post('login', [App\Http\Controllers\API\Auth\AuthController::class, 'login']);
 
-//Content routes
+
 
 Route::prefix('v1')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
+        //Content routes
         Route::post('content', [App\Http\Controllers\API\v1\ContentController::class, 'store']);
         Route::get('contents/{id}', [App\Http\Controllers\API\v1\ContentController::class, 'show']);
         Route::get('user-contents/{userId}', [App\Http\Controllers\API\v1\ContentController::class, 'showByUserId']);
         Route::get('feed-content', [App\Http\Controllers\API\v1\ContentController::class, 'index']);
         Route::delete('content/{id}', [App\Http\Controllers\API\v1\ContentController::class, 'destroy']);
         Route::put('content/{id}', [App\Http\Controllers\API\v1\ContentController::class, 'update']);
+
+        //Comment routes
+        Route::post('comment', [App\Http\Controllers\API\v1\CommentController::class, 'store']);
+        Route::get('comments', [App\Http\Controllers\API\v1\CommentController::class,'index']);
+        //Route::get('', [App\Http\Controllers\API\v1\CommentController::class,'']);
+        //Route::get('', [App\Http\Controllers\API\v1\CommentController::class,'']);
+
+        //Friendship routes
+
+        //User routes
+
+        //Message routes
+
+        //Likes routes
+        Route::post('like', [App\Http\Controllers\API\v1\LikeController::class, 'store']);
+        Route::delete('unlike', [App\Http\Controllers\API\v1\LikeController::class,'destroy']);
+
+        //Notification routes
+        
     });
 
 });
