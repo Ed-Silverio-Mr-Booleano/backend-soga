@@ -20,7 +20,7 @@ class ContentController extends Controller
     public function index()
     {
         try {
-            $contents = Content::with(['likes', 'comments'])
+            $contents = Content::with(['likes', 'comments', 'user'])
                 ->withCount(['likes', 'comments'])
                 ->get();
 
@@ -100,7 +100,7 @@ class ContentController extends Controller
 
         try {
             $content = Content::where('id', $id)
-                ->with(['likes', 'comments'])
+                ->with(['likes', 'comments', 'user'])
                 ->withCount(['likes', 'comments'])
                 ->first();
 
@@ -138,7 +138,7 @@ class ContentController extends Controller
 
         try {
             $contents = Content::where('user_id', $userId)
-                ->with(['likes', 'comments'])
+                ->with(['likes', 'comments', 'user'])
                 ->withCount(['likes', 'comments'])
                 ->get();
 
