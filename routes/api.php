@@ -45,8 +45,16 @@ Route::prefix('v1')->group(function () {
         Route::get('friends', [App\Http\Controllers\API\v1\FriendshipController::class, 'getFriends']);
 
         //User routes(bring users; edit my avatar; edit my profile; edit my cover pic; edit my password)
+        Route::put('user/profile', [App\Http\Controllers\API\v1\UserController::class, 'updateProfile']);
+        Route::get('users/search/interests', [App\Http\Controllers\API\v1\UserController::class, 'searchByInterests']);
+        Route::get('users/search/name', [App\Http\Controllers\API\v1\UserController::class, 'searchByName']);
+        Route::get('users/online', [App\Http\Controllers\API\v1\UserController::class, 'getOnlineUsers']);
 
         //Message routes (bring my messages; bring messages by status (read, unread); bring messages (user_online/offline))
+        Route::post('messages', [App\Http\Controllers\API\v1\MessageController::class, 'store']);
+        Route::get('messages/user/{id}', [App\Http\Controllers\API\v1\MessageController::class, 'messagesByUser']);
+        Route::post('messages/between-users', [App\Http\Controllers\API\v1\MessageController::class, 'messagesBetweenUsers']);
+        Route::delete('messages/{id}', [App\Http\Controllers\API\v1\MessageController::class, 'destroy']);
 
         //Likes routes
         Route::post('like', [App\Http\Controllers\API\v1\LikeController::class, 'store']);
