@@ -66,21 +66,26 @@ class FriendshipController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'status' => 'required|in:pending,accepted,rejected,blocked'
+            'status' => 'required|in:pending,accepted,rejected,blocked',
+            'user_id1' => 'required|exists:users,id',
+            'filter' => 'required|in:pending,accepted,rejected,blocked',
         ]);
 
         if ($validator->fails()) {
             return response()->json(['status' => Response::HTTP_BAD_REQUEST, 'errors' => $validator->errors()]);
         }
 
+
+
+
         try {
             $friendship = Friendship::where([
-                'userID1' => $id,
+                'userID1' => $request['user_id1'],
                 'userID2' => Auth::id(),
-                'status' => $request['status'],
+                'status' => $request->query('filter'),
             ])->first();
 
             if (!$friendship) {
@@ -97,7 +102,9 @@ class FriendshipController extends Controller
                 ], Response::HTTP_FORBIDDEN);
             }
 
-            $friendship->update($request->all());
+            $friendship->update([
+                'status' => $request['status'],
+            ]);
 
             return response()->json([
                 'status' => Response::HTTP_OK,
@@ -138,17 +145,10 @@ class FriendshipController extends Controller
                 ->where('status', 'accepted')
                 ->get();
 
-            if (!$acceptedFriendships) {
-                return response()->json([
-                    'status' => Response::HTTP_NOT_FOUND,
-                    'message' => 'user has no accepted request yet'
-                ], Response::HTTP_NOT_FOUND);
-            } else {
-                return response()->json([
-                    'status' => Response::HTTP_OK,
-                    'data' => $acceptedFriendships
-                ], Response::HTTP_OK);
-            }
+            return response()->json([
+                'status' => Response::HTTP_OK,
+                'data' => $acceptedFriendships
+            ], Response::HTTP_OK);
 
 
         } catch (Exception $e) {
@@ -176,17 +176,10 @@ class FriendshipController extends Controller
                 ->with('user2')
                 ->get();
 
-            if (!$sentFriendships) {
-                return response()->json([
-                    'status' => Response::HTTP_NOT_FOUND,
-                    'message' => 'user has no sent request yet'
-                ], Response::HTTP_NOT_FOUND);
-            } else {
-                return response()->json([
-                    'status' => Response::HTTP_OK,
-                    'data' => $sentFriendships
-                ], Response::HTTP_OK);
-            }
+            return response()->json([
+                'status' => Response::HTTP_OK,
+                'data' => $sentFriendships
+            ], Response::HTTP_OK);
 
 
         } catch (Exception $e) {
@@ -213,17 +206,10 @@ class FriendshipController extends Controller
                 ->with('user1') // Inclui dados do usuário que enviou o pedido
                 ->get();
 
-            if (!$friendRequests) {
-                return response()->json([
-                    'status' => Response::HTTP_NOT_FOUND,
-                    'message' => 'user has no sent request yet'
-                ], Response::HTTP_NOT_FOUND);
-            } else {
-                return response()->json([
-                    'status' => Response::HTTP_OK,
-                    'data' => $friendRequests
-                ], Response::HTTP_OK);
-            }
+            return response()->json([
+                'status' => Response::HTTP_OK,
+                'data' => $friendRequests
+            ], Response::HTTP_OK);
 
 
         } catch (Exception $e) {
@@ -257,17 +243,10 @@ class FriendshipController extends Controller
                     return $friendship->userID1 == $userId ? $friendship->user2 : $friendship->user1;
                 });
 
-            if (!$friends) {
-                return response()->json([
-                    'status' => Response::HTTP_NOT_FOUND,
-                    'message' => 'user has no sent request yet'
-                ], Response::HTTP_NOT_FOUND);
-            } else {
-                return response()->json([
-                    'status' => Response::HTTP_OK,
-                    'data' => $friends
-                ], Response::HTTP_OK);
-            }
+            return response()->json([
+                'status' => Response::HTTP_OK,
+                'data' => $friends
+            ], Response::HTTP_OK);
 
 
         } catch (Exception $e) {
