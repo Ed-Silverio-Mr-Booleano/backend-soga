@@ -30,13 +30,19 @@ Route::prefix('v1')->group(function () {
 
         //Comment routes
         Route::post('comment', [App\Http\Controllers\API\v1\CommentController::class, 'store']);
-        Route::get('comments', [App\Http\Controllers\API\v1\CommentController::class,'index']);
+        Route::get('comments', [App\Http\Controllers\API\v1\CommentController::class, 'index']);
         //Route::get('', [App\Http\Controllers\API\v1\CommentController::class,'']);
         //Route::get('', [App\Http\Controllers\API\v1\CommentController::class,'']);
 
         //Friendship routes (do friend request; undo friend request, bring my friends)
         Route::post('friendship', [App\Http\Controllers\API\v1\FriendshipController::class, 'store']);
-        Route::delete('unfriendship', [App\Http\Controllers\API\v1\FriendshipController::class,'destroy']);
+        Route::delete('unfriendship', [App\Http\Controllers\API\v1\FriendshipController::class, 'destroy']);
+        Route::put('accept-friendship-request', [App\Http\Controllers\API\v1\FriendshipController::class, 'update']);
+        Route::get('accept-friendship-request', [App\Http\Controllers\API\v1\FriendshipController::class, 'show']);
+        Route::get('friendships/requests', [App\Http\Controllers\API\v1\FriendshipController::class, 'getFriendRequests']);
+        Route::get('friendships/accepted', [App\Http\Controllers\API\v1\FriendshipController::class, 'acceptedRequests']);
+        Route::get('friendships/sent', [App\Http\Controllers\API\v1\FriendshipController::class, 'sentRequests']);
+        Route::get('friends', [App\Http\Controllers\API\v1\FriendshipController::class, 'getFriends']);
 
         //User routes(bring users; edit my avatar; edit my profile; edit my cover pic; edit my password)
 
@@ -44,10 +50,10 @@ Route::prefix('v1')->group(function () {
 
         //Likes routes
         Route::post('like', [App\Http\Controllers\API\v1\LikeController::class, 'store']);
-        Route::delete('unlike', [App\Http\Controllers\API\v1\LikeController::class,'destroy']);
+        Route::delete('unlike', [App\Http\Controllers\API\v1\LikeController::class, 'destroy']);
 
         //Notification routes
-        
+
     });
 
 });
