@@ -48,35 +48,40 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        $credentials = $request->only('email', 'password');
-        $user = User::where('email', $request->email)->first();
+        try {
+            $credentials = $request->only('email', 'password');
+            $user = User::where('email', $request->email)->first();
 
-        $validator = Validator::make($request->all(), [
-            'email' => 'required|string',
-            'password' => 'required|string|min:8'
-        ]);
+            $validator = Validator::make($request->all(), [
+                'email' => 'required|string',
+                'password' => 'required|string|min:8'
+            ]);
 
-        if ($validator->fails()) {
-            return response()->json($validator->errors());
-        }
-
-        if (!Auth::attempt($credentials)) {
-            if (!$user || !Hash::check($request['password'], $user->password)) {
-                return response()->json([
-                    'status' => Response::HTTP_UNAUTHORIZED,
-                    'message' => 'Invalid credentials'
-                ], Response::HTTP_UNAUTHORIZED);
+            if ($validator->fails()) {
+                return response()->json($validator->errors());
             }
+
+            if (!Auth::attempt($credentials)) {
+                if (!$user || !Hash::check($request['password'], $user->password)) {
+                    return response()->json([
+                        'status' => Response::HTTP_UNAUTHORIZED,
+                        'message' => 'Invalid credentials'
+                    ], Response::HTTP_UNAUTHORIZED);
+                }
+            }
+
+            $token = $user->createToken('login_token')->plainTextToken;
+            return response()->json([
+                'status' => Response::HTTP_OK,
+                'message' => 'Login success',
+                'data_user' => $request->user(),
+                'access_token' => $token,
+                'token_type' => 'Bearer'
+            ], Response::HTTP_OK);
+        } catch (Exception $e) {
+            dd($e->getMessage());
         }
 
-        $token = $user->createToken('login_token')->plainTextToken;
-        return response()->json([
-            'status' => Response::HTTP_OK,
-            'message' => 'Login success',
-            'data_user' => $request->user(),
-            'access_token' => $token,
-            'token_type' => 'Bearer'
-        ], Response::HTTP_OK);
     }
 
     public function logout()
@@ -85,6 +90,6 @@ class AuthController extends Controller
         return response()->json([
             'status' => Response::HTTP_OK,
             'message' => 'Logout success'
-        ],Response::HTTP_OK);
+        ], Response::HTTP_OK);
     }
 }
