@@ -14,8 +14,18 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         /** middleware yang akan mengarahkan user yang belum terautentikasi */
         $middleware->redirectGuestsTo(fn() => route('guest'));
-        $middleware->statefulApi();
+        $middleware->validateCsrfTokens(except: [
+        'api/*',
+        'http://localhost:3000/*',
+        'http://*',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
     })->create();
+
+    /*$middleware->validateCsrfTokens(except: [
+        'stripe/*',
+        'http://example.com/foo/bar',
+        'http://example.com/foo/*',
+    ]); */
