@@ -11,6 +11,7 @@ use Exception;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use App\Models\Friendship;
 
 class UserController extends Controller
 {
@@ -76,38 +77,96 @@ class UserController extends Controller
      */
     public function searchByInterests(Request $request)
     {
-        $interests = $request->query('interesses');
+        try {
+            $userId = Auth::id();
+            $interests = $request->query('interesses');
 
-        $users = User::where('interesses', 'like', '%' . $interests . '%')->get();
+            // Obter IDs de usuários com amizades pendentes envolvendo o usuário logado
+            $pendingFriendships = Friendship::where(function ($query) use ($userId) {
+                $query->where('userID1', $userId)
+                    ->orWhere('userID2', $userId);
+            })
+                ->where('status', 'pending')
+                ->get()
+                ->flatMap(function ($friendship) use ($userId) {
+                    return [$friendship->userID1, $friendship->userID2];
+                })
+                ->unique()
+                ->toArray();
 
-        return response()->json([
-            'status' => Response::HTTP_OK,
-            'data' => $users
-        ], Response::HTTP_OK);
+            // Excluir o usuário logado e os usuários com amizades pendentes dos resultados da pesquisa
+            $users = User::where('interesses', 'like', '%' . $interests . '%')
+                ->where('id', '!=', $userId)
+                ->whereNotIn('id', $pendingFriendships)
+                ->get(['id', 'name', 'email']); // Ajuste os campos conforme necessário
+
+            return response()->json([
+                'status' => Response::HTTP_OK,
+                'data' => $users
+            ], Response::HTTP_OK);
+
+        } catch (Exception $e) {
+            Log::error($e->getMessage());
+            return response()->json([
+                'status' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                'message' => 'Failed to search users by interests',
+                'error' => $e->getMessage()
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
+
 
     /**
      * Search users by full name.
      */
     public function searchByName(Request $request)
     {
-        $name = $request->query('name');
+        try {
+            $userId = Auth::id();
+            $name = $request->query('name');
 
-        $users = User::where('name', 'like', '%' . $name . '%')->get();
+            // Obter IDs de usuários com amizades pendentes envolvendo o usuário logado
+            $pendingFriendships = Friendship::where(function ($query) use ($userId) {
+                $query->where('userID1', $userId)
+                    ->orWhere('userID2', $userId);
+            })
+                ->where('status', 'pending')
+                ->get()
+                ->flatMap(function ($friendship) use ($userId) {
+                    return [$friendship->userID1, $friendship->userID2];
+                })
+                ->unique()
+                ->toArray();
 
-        return response()->json([
-            'status' => Response::HTTP_OK,
-            'data' => $users
-        ], Response::HTTP_OK);
+            // Excluir o usuário logado e os usuários com amizades pendentes dos resultados da pesquisa
+            $users = User::where('name', 'like', '%' . $name . '%')
+                ->where('id', '!=', $userId)
+                ->whereNotIn('id', $pendingFriendships)
+                ->get(['id', 'name', 'email']); // Ajuste os campos conforme necessário
+
+            return response()->json([
+                'status' => Response::HTTP_OK,
+                'data' => $users
+            ], Response::HTTP_OK);
+
+        } catch (Exception $e) {
+            Log::error($e->getMessage());
+            return response()->json([
+                'status' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                'message' => 'Failed to search users by name',
+                'error' => $e->getMessage()
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
+
 
     /**
      * Get online users.
      */
     public function getOnlineUsers()
     {
-        $onlineUsers = User::whereNotNull('last_online_at')
-            ->where('last_online_at', '>', now()->subMinutes(5)) // assuming 5 minutes of inactivity means offline
+        $onlineUsers = User::whereNotNull('id')
+            // assuming 5 minutes of inactivity means offline
             ->get();
 
         return response()->json([
